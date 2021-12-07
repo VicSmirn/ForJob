@@ -1,0 +1,79 @@
+from collections import defaultdict
+import time
+
+# Создаем декоратор, записывающий время и выполненную функцию в текстовый файл
+def loading(func):
+
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        with open('my_file', 'a') as f:
+            f.write('function name: {func_name} with '
+                    'result = {result}. Start at {start_time}\n\n'.format(
+                    func_name=func.__name__, result=result, start_time=time.ctime()
+                    )
+            )
+            f.close()
+            return result
+    return wrapper
+
+
+class Equipment(Exception):
+
+    # Инициализируем переменные
+    def __init__(self):
+        self.dict_eq = defaultdict(list)
+        self.i = 0
+        self.j = 0
+    
+    # Определяем тип вносимого в базу продукта и считаем их колличество
+    def what_product(self):
+        dev = True
+        while dev:
+            try:
+                product = int(input(f'Введите 1 - если это принтер, 2 - ксерокс: '))
+                if product == 1:
+                    self.i += 1
+                    return 'принтерa'
+                elif product == 2:
+                    self.j += 1
+                    return 'ксерокса'
+                if product != (0 and 1):
+                    raise Equipment()
+            except ValueError:
+                print('Вы ввели не число, повторите попытку')
+
+            except Equipment:
+                print('Вы ввели не то число, повторите попытку')
+            else:
+                dev = False
+    
+    # Добавляем в DefoulDict товары 
+    @loading
+    def print_all_equipment(self):
+        dev = True
+        while dev:
+            try:
+                count = int(input('Введите количество товаров: '))
+
+                for _ in range(count):
+
+                    self.product = Equipment.what_product(self)
+                    self.name = input(f'Введите наименование {self.product}: ')
+                    self.artic = input(f'Введите артикул {self.product}: ')
+                    self.price = int(input(f'Введите цену товара {self.product}: '))
+                    self.dict_eq[self.name].append(self.artic)
+                    self.dict_eq[self.name].append(self.price)
+            except ValueError:
+                print('Вы ввели не число, перезагрузите программу и введите корректное число')
+            else:
+                dev = False
+        return dict(self.dict_eq)
+    
+    # Выводи количество оборудования, находящегося на складе
+    def total_eq(self):
+
+        return f'Всего оборудования на складе: {self.i} принтеров, {self.j} сканеров.'
+
+a = Equipment()
+print(a.print_all_equipment())
+print(a.total_eq())
